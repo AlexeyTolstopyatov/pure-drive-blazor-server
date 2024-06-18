@@ -1,0 +1,161 @@
+﻿@page "/file/new"
+
+<PageTitle>Новый Документ</PageTitle>
+
+<h3>Добавление Файла</h3>
+
+@* Основной Контейнер *@
+<div class="alert alert-heading">
+    <h4>О файлах</h4>
+    <p>
+        Загруженные файлы должны быть проверены схемами-определения (*.xsd формата),
+        Если проверка прошла с ошибками, выберите другую существующую на сервере схему
+    </p>
+
+    @* Панель инструментов *@
+    <div class="alert alert-info">
+        <a class="btn btn-danger">Удалить</a>
+        <a class="btn btn-success" @onclick="() => IsPropertyRequired = true">Добавить свойства</a>
+        
+        @if (IsAdminHere)
+        {
+            <a class="btn btn-primary" href="/file/xnew">Добавить Схему</a>
+        }
+    </div>
+
+    <br/>
+    
+    @*Элемент входного файла*@
+    <InputFile class="alert alert-secondary" OnChange="Add"/>
+
+    <br/>
+
+    @* Если файл загружен *@
+    @if (_file != null)
+    {
+        <div class="alert alert-success">
+            <p>
+                Загружен успешно
+            </p>
+            <a class="btn btn-primary" @onclick="Save">Сохранить</a>
+        </div>
+    }
+
+</div>
+
+@*Если файл загружен и его необходимо определить, используется контейнер разметок*@
+@*
+<div class="alert alert-primary">
+    <h4>Схемы определения</h4>
+    <InputSelect class="form-select" @bind-Value="@DFile">
+        @for(int i = 0; i < DataObjectApi.DefinitionSchemas.Result.Length; i++)
+        {
+            <option>
+                @DataObjectApi.DefinitionSchemas.Result[i] 
+                @{DFile = DataObjectApi.DefinitionSchemas.Result[i];}
+            </option>
+        }
+    </InputSelect>
+    
+    <br/>
+
+    <p><b>@IsOk</b></p>
+</div>
+*@
+
+@*Если файл определен, ему необходимо пересоздать метаданные для регистрации файла*@
+@if(IsPropertyRequired)
+{
+    <div class="alert alert-info">
+    <h4>Свойства нового документа</h4>
+    <table class="table table-bordered" style="border-color:#000">
+        <thead>
+            <tr>
+                <th>Параметр</th>
+                <th>Значение</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Название</td>
+                <td>
+                    <InputText @bind-Value="Name" />
+                </td>
+            </tr>
+            <tr>
+                <td>Тип файла</td>
+                <td>
+                    <InputText @bind-Value="DFile" />
+                </td>
+            </tr>
+            <tr>
+                <td>Размер</td>
+                <td>
+                    <InputText @bind-Value="Size" />
+                </td>
+            </tr>
+            <tr>
+                <td>SHA-1</td>
+                <td>
+                    <InputText @bind-Value="Check"/>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+}
+
+
+@using puredrive.Services;
+@inject IWebHostEnvironment env
+@inject NavigationManager navigator
+@code 
+{
+    private IBrowserFile _file;
+
+    public string DFile { get; set; }
+    public string IsOk { get; set; }
+
+    public bool IsAdminHere = false;
+    public bool IsPropertyRequired = false;
+
+
+    [Parameter] public Models.Document document { get; set; }
+
+    public string Name { get; set; }
+    public string Check { get; set; }
+    public int Id { get; set; }
+    public string Size { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Data.Storage.User.Gid == 1)
+            IsAdminHere = true;
+    }
+
+    private async Task Deserialize()
+    {
+
+    }
+
+    private async Task Delete()
+    {
+
+    }
+
+    private async Task Add(InputFileChangeEventArgs e)
+    {
+        _file = e.File;
+
+        Name = _file.Name;
+        Size = _file.Size.ToString();
+        Check = await DriveObjectApi.GetSha1Checksum(e.File);
+    }
+
+    private async Task Save()
+    {
+        await DriveObjectApi.Upload(_file, env.ContentRootPath);
+        navigator.NavigateTo("/files");
+    }
+}
+

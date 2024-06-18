@@ -1,0 +1,38 @@
+﻿@page "/users"
+
+
+<AuthorizeView>
+    <Authorized>
+        <h3>Пользователи в системе</h3>
+
+        @using puredrive.Services;
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Имя</th>
+                    <th>Фамилия</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < puredrive.Services.DataObjectApi.Users.Rows.Count; i++)
+                {
+                    <tr>
+                        @for (int j = 0; j < DataObjectApi.Users.Columns.Count; j++)
+                        {
+                            <td>@Deflate.FastDecompress(DataObjectApi.Users.Rows[i].ItemArray[j]!)</td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </Authorized>
+
+    <NotAuthorized>
+        <h1>Нет доступа</h1>
+        <InfoBox Title="Войдите в систему"
+                 Content="или уведомите системного администратора добавить вас в систему">
+        </InfoBox>
+    </NotAuthorized>
+
+</AuthorizeView>
+

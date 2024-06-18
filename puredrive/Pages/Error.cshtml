@@ -1,0 +1,37 @@
+﻿@page
+@model puredrive.Pages.ErrorModel
+
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Error</title>
+    <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/site.css" rel="stylesheet" asp-append-version="true" />
+</head>
+
+<body>
+    <div class="main">
+        <div class="content px-4">
+            <h1 class="text-danger">Ошибка.</h1>
+            <h2 class="text-danger">Обнаружена ошибка во время обработки этого запроса.</h2>
+
+            @if (Model.ShowRequestId)
+            {
+                <p>
+                    <strong>Request ID:</strong> <code>@Model.RequestId</code>
+                </p>
+            }
+
+            <h3>Режим разработчика</h3>
+            <p>
+                Работая в режиме <strong>Разработчика</strong> система покажет больше информации об ошибках.
+            </p>
+            
+        </div>
+    </div>
+</body>
+
+</html>

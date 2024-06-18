@@ -1,0 +1,114 @@
+﻿@using System.ComponentModel.DataAnnotations;
+<meta charset="utf-8" />
+
+<EditForm Model="user" Context="Login">
+    <div class="form-control">
+         <style>
+             .label { margin-block: 10px; }
+         </style>
+        <div>
+            <label>
+                <strong>Вход в систему</strong>
+                <p>
+                    Вход в систему осуществляется по вашему логину и паролю,
+                    определенными системным администратором организации.
+                    <InfoBox Title="Логин"
+                             Content="Это ваше уникальное слово, отличающее вас в системе. Например: marinrnko302" />
+                </p>
+            </label>
+
+            <label class="form-label row" style="margin: 10px">Имя пользователя</label>
+            <label class="form-text row" style="margin: 10px">
+                <InputText type="text" @bind-Value="Name"></InputText>
+            </label>
+        </div>
+        <div style="margin-block: 10px">
+            <label class="form-label row" style="margin: 10px">Пароль</label>
+            <label class="form-text row" style="margin: 10px">
+                <InputText type="password" @bind-Value="Password"></InputText>
+            </label>
+        </div>
+        <p>@HtmlString</p>
+        <div class="col-form-label">
+            <a class="btn btn-primary"
+               style="margin-block: 10px"
+                @onclick="SignIn">
+                Подтвердить
+            </a>
+        </div>
+        <div class="form-label">
+            <p style="color: darkblue">
+            @*@if (claims.Count() > 0)
+            {
+                
+                <ul>
+                    @foreach (var claim in claims)
+                    {
+                        <li>@claim.Type -> @claim.Value</li>
+                    }
+                </ul>
+            }*@
+            </p>
+        </div>
+    </div>
+</EditForm>
+
+
+@inject AuthenticationStateProvider provider
+@inject NavigationManager navigator
+@using puredrive.Models;
+@using puredrive.Data;
+@code
+{
+    public User user = new User();
+    public string Name { get; set; }
+    public string Password { get; set; }
+
+    public MarkupString HtmlString = new MarkupString("");
+}
+
+@using puredrive.Services
+@code
+{
+    private async Task SignIn()
+    {
+        DriveAuthentication service = new DriveAuthentication();
+        string list = "<ul>\n";
+
+        user.Login = Name;
+        user.Password = Password;
+
+        service.Identity = user;
+
+        await service.Run();
+
+        list += $"<li>Пользователь: {Name}</li>\n";
+
+        foreach (TaskReport report in service.Report)
+        {
+            list += $"<li><b>{report.Message}</b> {report.Content} ({report.Source})</li>\n";
+        }
+
+        list += "</ul>";
+
+        HtmlString = new MarkupString(list);
+
+        // что это и как это исправлять.
+        if (!TaskReport.HasErrors(service.Report.ToArray()))
+        {
+            return;
+        }
+
+        // remember user
+        // transfer public info to ModelManager
+        Storage.User = 
+            await DataObjectApi.User("Login", service.Identity.Login);
+
+        Storage.GroupID = service.Identity.Gid;
+
+        (( CustomAuthenticationStateProvider )provider).Create(Name);
+
+        // перенаправить на главную
+        navigator.NavigateTo("/");
+    }
+}

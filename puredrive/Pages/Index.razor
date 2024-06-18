@@ -1,0 +1,22 @@
+﻿@page "/"
+
+<PageTitle>Главная</PageTitle>
+
+<h1>Главная</h1>
+
+<h3>Простой и удобный доступ к файлам организации</h3>
+<p>Вы можете хранить, обновлять, загружать версии документов</p>
+
+<AuthorizeView>
+    <NotAuthorized>
+        <a href="/sign" class="btn-primary btn">Войти</a>
+
+        <InfoBox Title="Вас нет в системе?"
+                 Content="За регистрацией обратитесь к сетевому администратору организации" />
+
+    </NotAuthorized>
+    @*Если авторизовался -> Данные Профиля + Политика в системе*@
+    <Authorized>
+        <puredrive.Pages.Private.Profile/>
+    </Authorized>
+</AuthorizeView>

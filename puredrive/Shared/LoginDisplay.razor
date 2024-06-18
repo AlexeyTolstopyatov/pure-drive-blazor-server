@@ -1,0 +1,8 @@
+﻿<AuthorizeView>
+    <Authorized>
+        <p style="color:darkblue">Вы работаете как: <b>@context.User.Identity?.Name</b></p>
+    </Authorized>
+    <NotAuthorized>
+        <p style="color: crimson">Войдите в систему, чтобы начать работу</p>
+    </NotAuthorized>
+</AuthorizeView>

@@ -1,0 +1,80 @@
+﻿@inject AuthenticationStateProvider provider
+
+
+<div class="alert alert-heading">
+    <h4>Данные Профиля</h4>
+    <div class="form-label">
+        <div class="form-label">
+            <div class="form-text">Имя (в сети)</div> @Login
+        </div>
+
+
+        <div class="form-label">
+            <div class="form-text">Полные Имя/Фамилия</div>
+            <b>@Name @Surname</b>
+        </div>
+
+        <div class="form-label">
+            <div class="alert alert-warning">
+                <b>@Name</b>, помни, что @GroupContent
+            </div>
+        </div>
+        
+        <p></p>
+        <div class="alert alert-secondary">
+            <p>При выходе из системы, ваши данные не будут утеряны, но при входе в вашу учетную запись снова, потребуется подтверждение</p>
+            <a class="btn btn-danger" @onclick="Logout">Выйти</a>
+        </div>
+
+    </div>
+</div>
+
+<br/>
+
+@if (Storage.User.Gid == 1)
+{
+    <div class="alert alert-success">
+        <Connection />
+    </div>
+
+    <div class="alert alert-dark">
+        <WordTransformation/>
+    </div>
+}
+
+@using puredrive.Data;
+@using puredrive.Services;
+@code {
+    // Соединение с субд //
+    // Нужна: Информация о пользователе. Сам пользователь свой кабинет удалить не может.
+    // Если у пользователя есть права Администратора, ему доступна страница Connection.
+
+    // Если у пользователя ранг меньше Администратора --> перенаправить на главную
+
+    // Все, что связано с базой данных и объектами базы данных --> DataObjectApi
+
+    public string Name { get; set; }
+
+    public string Surname { get; set; }
+
+    public string Group { get; set; }
+
+    public string Login { get; set; }
+
+    public string GroupContent { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Name =          Deflate.FastDecompress(Storage.User.Name);
+        Surname =       Deflate.FastDecompress(Storage.User.SurName);
+        Login =         Deflate.FastDecompress(Storage.User.Login);
+        Group =         Deflate.FastDecompress(await Services.DataObjectApi.Group(Storage.User.Gid));
+        GroupContent =  Deflate.FastDecompress(await DataObjectApi.GroupDescription(Storage.User.Gid));
+    }
+    
+
+    private void Logout()
+    {
+        ((Services.CustomAuthenticationStateProvider)provider).Delete();
+    }
+}

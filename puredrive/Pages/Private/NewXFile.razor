@@ -1,0 +1,93 @@
+﻿@attribute [Authorize]
+@page "/file/xnew"
+@using puredrive.Models;
+
+<h3>Новая разметка документа</h3>
+
+<div class="alert alert-secondary">
+    <h4>Новая разметка</h4>
+    <p>Чтобы выполнить действие, необходимо два файла <b>(*.XSL и *.XSD)</b></p>
+
+    <br />
+
+    <p>Импорт XSL</p>
+    <InputFile class="alert alert-info" OnChange="InspectStyle"/>
+    
+    <p>Импорт XSD</p>
+    <InputFile class="alert alert-success" OnChange="InspectSchema"/>
+
+
+    @if (_definition != null && _style != null)
+    {
+        <div class="alert alert-heading">
+            <table class="table table-bordered" style="border-color:#000">
+                <thead>
+                    <tr>
+                        <th>Параметр</th>
+                        <th>Значение</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Размер схемы</td>
+                        <td>@_definition.Size</td>
+                    </tr>
+                    <tr>
+                        <td>Размер стиля</td>
+                        <td>@_style.Size</td>
+                    </tr>
+                    <tr>
+                        <td>Индекс</td>
+                        <td>@FileID</td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+    }
+</div>
+
+
+@{
+    if (_isOk)
+    {
+        <a class="btn btn-success">Добавить</a>
+    }
+
+    if (_style != null && _definition != null)
+    {
+        <a class="btn btn-primary" href="/files" @onclick="Load">Сохранить</a>
+    }
+
+}
+@*
+    эта страничка проклята
+    заходи сюда и пиши все заново каждый раз
+*@
+
+@inject IWebHostEnvironment env
+@inject NavigationManager nav
+@using Services;
+@code {
+    private bool _isOk = false;
+    private IBrowserFile _definition;
+    private IBrowserFile _style;
+
+    private int FileID { get; set; }
+
+    private void InspectStyle(InputFileChangeEventArgs e)
+    {
+        _style = e.File;
+    }
+
+    private void InspectSchema(InputFileChangeEventArgs e)
+    {
+        _definition = e.File;
+    }
+
+    private async Task Load()
+    {
+        await DriveObjectApi.UploadSchema(_definition, false);
+        await DriveObjectApi.UploadSchema(_style, true);
+    }
+}

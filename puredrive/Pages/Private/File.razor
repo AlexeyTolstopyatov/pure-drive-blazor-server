@@ -1,0 +1,85 @@
+﻿@page "/file"
+@using puredrive.Data;
+
+
+<h3>Информация о файле</h3>
+
+@if (Storage.FileID == 0)
+{
+    <div class="alert alert-danger">
+        <h4>
+            Указаного файла не существует
+        </h4>
+    </div>
+
+}
+
+<div class="alert alert-heading">
+    <p>
+        Для просмотра структурированных файлов, используются <a href="https://github.com/AlexeyTolstopyatov/xnrs-wpf" target="_blank">xnrs-API</a>
+        вызовы.
+    </p>
+
+    <div class="alert alert-warning">
+        <p>
+            Для XML файлов, сохраненных на сервере вы можете выбрать образец для отображения. 
+            Это поможет вам сразу увидеть содержимое файла, без необходимости его скачивать
+        </p>
+    </div>
+</div>
+
+<br/>
+
+<div class="alert alert-secondary">
+    <p>
+        Укажите один из образцов для чтения, представленный ниже
+    </p>
+
+    <InputSelect class="form-select" @bind-Value="Sheet">
+        @for (int i = 0; i < Sheet.Length; i++)
+        {
+            <option @onclick="() => GetPreview(i)">@Sheet[i]</option>
+        }
+    </InputSelect>
+
+        @{
+            <br/>
+            <p class="alert alert-info">
+                Схема представления выбрана. Вы можете посмотреть документ
+                <a class="btn btn-primary" target="_blank" @onclick="() => GetPreview(selection)">Просмотр</a>
+            </p>
+        }
+    
+
+</div>
+
+@using puredrive.Services
+@inject NavigationManager nav
+@code {
+    public string[] Sheet { get; set; } = new string[1] 
+    { 
+        "Здесь содержатся схемы для чтения"
+    };
+
+    public int selection = 0;
+
+    private async Task LoadSheets()
+    {
+        Sheet = await DataObjectApi.ExecuteVectorAsync("SELECT [file] FROM [styles]"); 
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Sheet = await DataObjectApi.ExecuteVectorAsync("SELECT [file] FROM [styles]");
+    }
+
+    private async Task GetPreview(int i)
+    {
+        MarkupString result = await DriveObjectApi.GetPreview(i);
+        Storage.Document = result;
+
+        
+        nav.NavigateTo("/preview");
+    }
+
+}

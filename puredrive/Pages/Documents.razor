@@ -1,0 +1,86 @@
+﻿@page "/files"
+@using puredrive.Data
+@using puredrive.Services
+
+
+<PageTitle>Документы</PageTitle>
+
+<h1>Документы</h1>
+
+<p>На этой странице будут отображены документы, хранящиеся на сервере.</p>
+
+
+<AuthorizeView>
+    <Authorized>
+        <div class="alert alert-primary">
+            <a class="btn btn-secondary" href="/file/new">Добавить</a>
+        </div>
+        
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Файл</th>
+                    <th>Тип</th>
+                    <th>Размер</th>
+                    <th>Номер</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < puredrive.Services.DataObjectApi.Documents.Rows.Count; i++)
+                {
+                    <tr>
+                        @for (int j = 0; j < puredrive.Services.DataObjectApi.Documents.Columns.Count; j++)
+                        {
+                            <td><a @onclick="() => Provide(i)">@DataObjectApi.Documents.Rows[i].ItemArray.ElementAt(j)</a></td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </Authorized>
+    <NotAuthorized>
+        <p role="alertdialog" class="alert alert-danger">Вы не вошли в систему</p>
+    </NotAuthorized>
+</AuthorizeView>
+ 
+@code
+{
+    public Models.Document document { get; set; }
+}
+
+@inject NavigationManager navigator
+@code 
+{
+    /// <summary>
+    /// Направить на страницу свойств
+    /// </summary>
+    /// <param name="id"></param>
+    private void Provide(int id)
+    {
+        // Если у первого элемента размер (Байт) равен нулю
+        // (перенаправить на пустую страницу)
+        // id += 1;
+
+        if (Convert.ToInt32(DataObjectApi.Documents.Rows[0].ItemArray.ElementAt(3)) == 0)
+            id = 0;
+
+
+        Storage.FileID = id;
+        navigator.NavigateTo("/file");
+    }
+
+    // получить документы, хранящиеся в базе данных.
+    // Все документы, хранящиеся на диске = ID.type.ext
+    protected override async Task OnInitializedAsync()
+    {
+        // Проверить наличие документов на диске.
+        // await DriveObjectApi.FindAll();
+
+        // Все документы проверить на наличие в базе данных
+        // await DataObjectApi.Documents
+        
+
+        // Вывести проверенные элементы
+        // выше
+    }
+}

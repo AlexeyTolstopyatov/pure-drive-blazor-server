@@ -1,0 +1,45 @@
+﻿<!-- Экскременты -->
+<EditForm Model="SessionKey">
+    <div class="form-control">
+        <label class="form-label">
+            <strong>Вход в систему по ключу</strong>
+            <p>
+                Вход по ключу осуществляется, если вам был создан временный доступ к файлам организации
+                Ключ создает администратор сети
+            </p>
+        </label>
+        <div class="form-text">
+            <label>Ключ общего доступа</label>
+            <InputText @bind-Value="Input">
+            </InputText>
+            <p>@Message</p>
+        </div>
+        <div class="form-label">
+            <a style="margin-block: 10px" @onclick="@TryCount" class="btn btn-success">Подтвердить</a>
+        </div>
+    </div>
+</EditForm>
+
+@inject NavigationManager navigator
+@code {
+    public Models.Key SessionKey { get; set; } = new Models.Key();
+
+    [Parameter]
+    public string Input { get; set; } = "";
+    public MarkupString Message { get; set; } = new MarkupString("");
+
+    public void TryCount()
+    {
+        int x = int.Parse(Input);
+
+        bool rule = (x > 100000 & x % 3 == 0);
+
+        if (!rule)
+            Message = new MarkupString($"<p><font color=\"red\">Не удалось создать сессию</font></p>");
+        else
+        {
+            Message = new MarkupString($"<p><font color=\"blue\">Проверка пройдена</font></p>");
+            navigator.NavigateTo("/connection");
+        }
+    }
+}

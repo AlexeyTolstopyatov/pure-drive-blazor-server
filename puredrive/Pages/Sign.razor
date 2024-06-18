@@ -1,0 +1,25 @@
+﻿@page "/sign"
+@using puredrive.Pages.Controls;
+
+
+<LoginForm/>
+
+<p/>
+    <a class="btn btn-info" style="color: white" @onclick="@SetKey">Вход на основе ключа</a>
+<p/>
+
+@if(IsKey)
+{
+    <KeyloginForm/>
+}
+
+
+<!-- Авторизация на основе ключа -->
+@code
+{
+    public bool IsKey { get; set; } = false;
+    private void SetKey()
+    {
+        IsKey = true;
+    }
+}

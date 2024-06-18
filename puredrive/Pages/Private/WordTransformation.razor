@@ -1,0 +1,48 @@
+﻿@using puredrive.Services;
+<h3>Перевод текста</h3>
+
+<EditForm
+    Model="Text"
+    Context="Word">
+
+    <div>
+        <div class="form-text">
+            <label>Перевести</label>
+            <InputText @bind-Value="Raw" />
+        </div>
+        
+        <br/>
+        
+        <div class="form-label">
+            <p><b>@Text.Bytes</b></p>
+        </div>
+
+        <a class="btn btn-primary" @onclick="FromText">В Байты</a>
+        <a class="btn btn-danger" @onclick="ToText">В Текст</a>
+    </div>
+
+</EditForm>
+
+@code {
+    public class Word
+    {
+        [Parameter] public string Raw { get; set; }
+        public string Bytes { get; set; }
+    }
+
+    [Parameter]
+    public string Raw { get; set; }
+
+    public Word Text { get; set; } = new Word();
+
+    private void ToText()
+    {
+        Text.Bytes = Deflate.FastDecompress(Raw);
+    }
+
+    private void FromText()
+    {
+        Text.Bytes = Deflate.FastCompress(Raw);
+    }
+
+}
