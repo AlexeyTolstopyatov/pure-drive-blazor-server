@@ -13,8 +13,8 @@
 #*.cs     diff=csharp
 
 *.cs diff=csharp
-*.razor diff=html+razor
-*.cshtml diff=html+razor
+*.razor diff=html.razor
+*.cshtml diff=html.razor
 *.razor.css diff=css
 *.css diff=css
 
